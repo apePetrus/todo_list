@@ -1,5 +1,5 @@
-#ifndef OPTIONS_H
-#define OPTIONS_H
+#ifndef TODO_H
+#define TODO_H
 
 void process_input(int option);
 

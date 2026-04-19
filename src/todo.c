@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "options.h"
+#include "todo.h"
 #include "utils.h"
 
 #define NEW_TASK 1
@@ -42,10 +42,19 @@ Task get_last_task() {
     char *index_field = parse_field(idx_tmp, 1);
     char *index_field_ptr;
 
+    // returns -1 if no tasks exist
+    if (!index_field) {
+      last_task.idx = -1;
+      return last_task;
+    }
+
     long index = strtol(index_field, &index_field_ptr, sizeof(index_field));
+
     last_task.idx = index;
 
-    strncpy(last_task.name, parse_field(name_tmp, 2), 50);
+    if (index > 0) {
+      strncpy(last_task.name, parse_field(name_tmp, 2), 50);
+    }
 
     free(idx_tmp);
     free(name_tmp);
@@ -74,6 +83,11 @@ void new_task(void) {
 
   FILE *fpt;
   fpt = fopen("tasks.csv", "a");
+
+  if (new_idx() == 0){
+    fprintf(fpt, "idx;name\n");
+  }
+
   fprintf(fpt, "%d;%s", new_idx(), task.name);
   fclose(fpt);
 }
