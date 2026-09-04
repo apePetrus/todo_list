@@ -1,15 +1,66 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 
-char input[10];
-char task_name[50];
-char list[3][10] = {'\0'};
-char *inputptr;
-int option;
+#define NEW_TASK 1
+#define READ_TASK 2
+#define EXIT 3
 
-void cls(void) {
-  printf("\e[H\e[2J\e[3J");
+
+typedef struct {
+  int idx;
+  char name[50];
+} Task;
+
+char* parse_field(char* line, int field_index) {
+  char* tok;
+  for (tok = strtok(line, ";");
+        tok && *tok;
+        tok = strtok(NULL, ";\n")) {
+    if (!--field_index) {
+      return tok;
+    }
+  }
+
+  return NULL;
+}
+
+Task get_last_task() {
+  Task last_task;
+
+  char line[256];
+  FILE *fpt;
+  fpt = fopen("tasks.csv", "r");
+
+  if (fpt) {
+    while (fgets(line, sizeof(line), fpt)) { continue; }
+
+    char* idx_tmp = strdup(line);
+    char* name_tmp = strdup(line);
+
+    char *index_field = parse_field(idx_tmp, 1);
+    char *index_field_ptr;
+
+    long index = strtol(index_field, &index_field_ptr, sizeof(index_field));
+    last_task.idx = index;
+
+    strncpy(last_task.name, parse_field(name_tmp, 2), 50);
+
+    free(idx_tmp);
+    free(name_tmp);
+    fclose(fpt);
+  }
+  
+  return last_task;
+}
+
+int new_idx() {
+  Task last_task = get_last_task();
+
+  int new_index = last_task.idx + 1;
+
+  return new_index;
 }
 
 void new_task(void) {
@@ -17,11 +68,13 @@ void new_task(void) {
 
   printf("Enter task name\n");
   printf("---> ");
-  fgets(task_name, sizeof(task_name), stdin);
+
+  Task task;
+  fgets(task.name, sizeof(task.name), stdin);
 
   FILE *fpt;
   fpt = fopen("tasks.csv", "a");
-  fprintf(fpt, "%s", task_name);
+  fprintf(fpt, "%d;%s", new_idx(), task.name);
   fclose(fpt);
 }
 
@@ -46,21 +99,28 @@ void read_task(void) {
 }
 
 void process_input(int option) {
-  if (option == 1) {
-    new_task();
-  } else if (option == 2) {
-    read_task();
-  } else if (option == 3) {
-    exit(0);
-  } else {
-    cls();
+  switch (option) {
+    case NEW_TASK:
+      new_task();
+    break;
 
-    printf("Insert a valid option\n");
+    case READ_TASK:
+      read_task();
+    break;
+
+    case EXIT:
+      exit(0);
+    break;
+
+    default:
+      cls();
+      printf("Insert a valid option\n");
+    break;
   }
 }
 
 int main(void) {
-  while (true) {
+  while (1) {
     cls();
     printf("LISTA DE TAREFAS\n\n");
 
@@ -70,6 +130,10 @@ int main(void) {
 
     printf("Enter option\n");
     printf("---> ");
+
+    char input[10];
+    char *inputptr;
+    int option;
 
     fgets(input, sizeof(input), stdin);
     option = strtol(input, &inputptr, sizeof(input));
