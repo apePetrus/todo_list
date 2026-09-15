@@ -1,12 +1,12 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include "options.h"
 #include "utils.h"
 
 #define NEW_TASK 1
 #define READ_TASK 2
 #define EXIT 3
-
 
 typedef struct {
   int idx;
@@ -119,26 +119,3 @@ void process_input(int option) {
   }
 }
 
-int main(void) {
-  while (1) {
-    cls();
-    printf("LISTA DE TAREFAS\n\n");
-
-    printf("1 - New task\n");
-    printf("2 - Read tasks\n");
-    printf("3 - Exit\n\n");
-
-    printf("Enter option\n");
-    printf("---> ");
-
-    char input[10];
-    char *inputptr;
-    int option;
-
-    fgets(input, sizeof(input), stdin);
-    option = strtol(input, &inputptr, sizeof(input));
-    process_input(option);
-  }
-
-  return 0;
-}
