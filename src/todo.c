@@ -97,14 +97,21 @@ void read_task(void) {
 
   printf("Current tasks\n\n");
 
-  int c;
+  char line[256];
   FILE *fpt;
   fpt = fopen("tasks.csv", "r");
 
   if (fpt) {
-    while ((c = getc(fpt)) != EOF) {
-      putchar(c);
+
+    // just skips first line (header) lol
+    fgets(line, sizeof(line), fpt);
+
+    while (fgets(line, sizeof(line), fpt)) {
+      char* name_tmp = strdup(line);
+      printf("%s\n", parse_field(name_tmp, 2));
+      free(name_tmp);
     }
+
     fclose(fpt);
   }
 
