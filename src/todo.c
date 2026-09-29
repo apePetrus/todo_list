@@ -4,9 +4,11 @@
 #include "todo.h"
 #include "utils.h"
 
-#define NEW_TASK 1
-#define READ_TASK 2
-#define EXIT 3
+typedef enum {
+  NEW_TASK,
+  READ_TASK,
+  EXIT
+} Option;
 
 typedef struct {
   int idx;
@@ -84,7 +86,7 @@ void new_task(void) {
   FILE *fpt;
   fpt = fopen("tasks.csv", "a");
 
-  if (new_idx() == 0){
+  if (new_idx() == 0) {
     fprintf(fpt, "idx;name\n");
   }
 
@@ -120,7 +122,7 @@ void read_task(void) {
 }
 
 void process_input(int option) {
-  switch (option) {
+  switch (option - 1) {
     case NEW_TASK:
       new_task();
     break;
