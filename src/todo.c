@@ -10,9 +10,15 @@ typedef enum {
   EXIT
 } Option;
 
+typedef enum {
+  TODO,
+  DONE
+} Status;
+
 typedef struct {
   int idx;
   char name[50];
+  Status status;
 } Task;
 
 char* parse_field(char* line, int field_index) {
@@ -26,6 +32,13 @@ char* parse_field(char* line, int field_index) {
   }
 
   return NULL;
+}
+
+char* parse_status(int status) {
+  if (status == 0) {
+    return "To-do";
+  }
+  return "Done";
 }
 
 Task get_last_task() {
@@ -55,7 +68,7 @@ Task get_last_task() {
     last_task.idx = index;
 
     if (index > 0) {
-      strncpy(last_task.name, parse_field(name_tmp, 2), 50);
+      strncpy(last_task.name, parse_field(name_tmp, 3), 50);
     }
 
     free(idx_tmp);
@@ -80,17 +93,19 @@ void new_task(void) {
   printf("Enter task name\n");
   printf("---> ");
 
-  Task task;
-  fgets(task.name, sizeof(task.name), stdin);
-
   FILE *fpt;
   fpt = fopen("tasks.csv", "a");
 
   if (new_idx() == 0) {
-    fprintf(fpt, "idx;name\n");
+    fprintf(fpt, "idx;status;name\n");
   }
 
-  fprintf(fpt, "%d;%s", new_idx(), task.name);
+  Task task;
+  fgets(task.name, sizeof(task.name), stdin);
+
+  task.status = TODO;
+
+  fprintf(fpt, "%d;%d;%s", new_idx(), task.status, task.name);
   fclose(fpt);
 }
 
@@ -110,8 +125,20 @@ void read_task(void) {
 
     while (fgets(line, sizeof(line), fpt)) {
       char* name_tmp = strdup(line);
-      printf("%s\n", parse_field(name_tmp, 2));
+      char* status_tmp = strdup(line);
+
+      char *status_field = parse_field(status_tmp, 2);
+      char *status_field_ptr;
+
+      long status = strtol(
+          status_field,
+          &status_field_ptr,
+          sizeof(status_field)
+          );
+
+      printf("%s - %s\n", parse_status(status), parse_field(name_tmp, 3));
       free(name_tmp);
+      free(status_tmp);
     }
 
     fclose(fpt);
