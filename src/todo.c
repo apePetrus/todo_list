@@ -136,7 +136,7 @@ void read_task(void) {
           sizeof(status_field)
           );
 
-      printf("%s - %s\n", parse_status(status), parse_field(name_tmp, 3));
+      printf("%s - %s\n", parse_field(name_tmp, 3), parse_status(status));
       free(name_tmp);
       free(status_tmp);
     }
